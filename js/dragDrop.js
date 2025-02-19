@@ -24,7 +24,7 @@ function renderDrag() {
 
 			div.addEventListener('drop', (event) => {
 				event.preventDefault();
-				
+
 				const id = event.dataTransfer.getData('text/plain');
 				let item = document.getElementById(id);
 
@@ -42,8 +42,18 @@ function renderDrag() {
 
 				const divDrag = document.querySelectorAll('.drag-over')[0];
 
+				if (divDrag) {
+					const targetTier = divDrag.parentElement.getElementsByClassName('tier-title')[0].innerHTML;
+					if (targetTier == "autres") {
+						addItemAutre(item.getAttribute('id'));
+					} else {
+						addItem(item.getAttribute('id'), targetTier);
+					}
+				}
+
 				renderItems();
 				renderTiers();
+				
 				div.hasEventListener = true;
 			});
 		}
