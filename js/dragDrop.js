@@ -1,18 +1,19 @@
-
-
-item.addEventListener('dragstart', (event) => {
-	div.classList.add('dragging');
-	event.dataTransfer.setData('text/plain', div.id);
+document.querySelectorAll('.draggable').forEach(item => {
+	item.addEventListener('dragstart', (event) => {
+		event.dataTransfer.setData('text/plain', item.id);
+	});
 });
 
-div.addEventListener('dragover', (event) => {
-	if (div.classList.contains('tier-row')) {
-		event.target.classList.add('dragover');
-	}
-});
+document.querySelectorAll('.droppable').forEach(div => {
+	div.addEventListener('dragover', (event) => {
+		if (div.classList.contains('tier-row')) {
+			event.target.classList.add('dragover');
+		}
+	});
 
-div.addEventListener('dragleave', (event) => {
-	if (div.classList.contains('tier-row')) {
-		event.target.classList.remove('dragover');
-	}
+	div.addEventListener('dragleave', (event) => {
+		if (div.classList.contains('tier-row')) {
+			event.target.classList.remove('dragover');
+		}
+	});
 });

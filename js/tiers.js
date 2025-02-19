@@ -22,7 +22,7 @@ function renderTiers() {
 		const div = document.createElement('div');
 
 		div.classList.add('tier');
-		div.classList.add('draggable');
+		div.classList.add('droppable');
 		div.droppable = true;
 		div.innerHTML = `
 			<div class="row align-items-center tier-row" data-index="4">
