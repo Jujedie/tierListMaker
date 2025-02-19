@@ -61,6 +61,8 @@ function renderTiers() {
 	document.querySelectorAll('.delete-tier').forEach((button, index) => {
 		button.addEventListener('click', () => deleteTier(index));
 	});
+
+	renderDrag();
 }
 
 
@@ -90,4 +92,22 @@ function showTitle(element) {
 	h3.innerHTML = element.value;
 
 	element.parentElement.replaceChild(h3, element);
+}
+
+function removeItem(id,nomTier){
+	initTiers.forEach(tier => {
+		if (tier.name == nomTier) {
+			tier.items = tier.items.filter(item => item.id != id);
+		}
+	});
+	renderTiers();
+}
+
+function addItem(id, nomTier){
+	initTiers.forEach(tier => {
+		if (tier.name == nomTier) {
+			tier.items.push({ id: id, text: document.getElementById(id).innerHTML });
+		}
+	});
+	renderTiers();
 }

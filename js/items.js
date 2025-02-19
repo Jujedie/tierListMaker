@@ -16,8 +16,9 @@ function createItemElement(item) {
 	const div = document.createElement('div');
 	div.classList.add('item');
 	div.classList.add('draggable');
-	div.id = item.id;
+	div.id = "Item "+item.id;
 	div.draggable = true;
+	div.dataset.id = item.id;
 	
 	div.appendChild(span);
 
@@ -25,6 +26,8 @@ function createItemElement(item) {
 }
 
 function renderItems() {
+	document.getElementById('items-list').innerHTML = '';
+
 	const items = document.getElementById('items-list');
 
 	const div = document.createElement('div');
@@ -56,12 +59,23 @@ function renderItems() {
 
 	items.appendChild(div);
 
+	renderDrag();
 }
 
-function addItem(){
+function addNewItem(){
 	let itemText = prompt("");
 	let id = otherItems.length + 1;
 
 	otherItems.push({ id: id, text: itemText });
+	renderItems();
+}
+
+function removeItemAutre(id){
+	otherItems = otherItems.filter(item => item.id != id);
+	renderItems();
+}
+
+function addItemAutre(item){
+	otherItems.push(item);
 	renderItems();
 }
