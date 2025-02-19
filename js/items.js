@@ -15,6 +15,7 @@ function createItemElement(item) {
 
 	const div = document.createElement('div');
 	div.classList.add('item');
+	div.classList.add('draggable');
 	div.id = item.id;
 	div.draggable = true;
 	
@@ -29,6 +30,7 @@ function renderItems() {
 	const div = document.createElement('div');
 
 	div.classList.add('tier');
+	div.droppable = true;
 	div.innerHTML = `
 			<div class="row align-items-center tier-row" data-index="4">
 				<div class="col-2 text-center p-2">
@@ -45,6 +47,11 @@ function renderItems() {
 
 	ensItem.forEach(item => {
 		div.getElementsByClassName("tier-content")[0].appendChild(item);
+
+		item.addEventListener('dragstart', (event) => {
+			div.classList.add('dragging');
+			event.dataTransfer.setData('text/plain', div.id);
+		});
 	});
 
 	items.appendChild(div);

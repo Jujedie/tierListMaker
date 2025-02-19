@@ -1,32 +1,33 @@
 const initTiers = [
 
-    { id: 1, name: 'Incontournable', color: '#FF8C42', items: [{ id: 1, text: "PHP" }, { id: 4, text: "SQL" }] },
+	{ id: 1, name: 'Incontournable', color: '#FF8C42', items: [{ id: 1, text: "PHP" }, { id: 4, text: "SQL" }] },
 
-    { id: 2, name: 'Moyenne', color: '#EFBF3E', items: [{ id: 2, text: "Javascript" }] },
+	{ id: 2, name: 'Moyenne', color: '#EFBF3E', items: [{ id: 2, text: "Javascript" }] },
 
-    { id: 3, name: 'Passable', color: '#C2C236', items: [] },
+	{ id: 3, name: 'Passable', color: '#C2C236', items: [] },
 
-    { id: 4, name: 'Médiocre', color: '#6FBF73', items: [] },
+	{ id: 4, name: 'Médiocre', color: '#6FBF73', items: [] },
 
-    { id: 5, name: 'Catastrophique', color: '#4E9A51', items: [{ id: 3, text: "CSS" }] }
+	{ id: 5, name: 'Catastrophique', color: '#4E9A51', items: [{ id: 3, text: "CSS" }] }
 
 ];
 
-function renderTiers(){
+function renderTiers() {
+
+	document.getElementById('tiers-container').innerHTML = '';
 
 	const tiers = document.getElementById('tiers-container');
 
-	console.log("Test : "+tiers);
-
 	initTiers.forEach(tier => {
-
 		const div = document.createElement('div');
 
 		div.classList.add('tier');
+		div.classList.add('draggable');
+		div.droppable = true;
 		div.innerHTML = `
 			<div class="row align-items-center tier-row" data-index="4">
-				<div class="col-2 text-center p-2" style="background-color:`+tier.color.toUpperCase()+`;">
-					<h3 class="tier-title">`+ tier.name+`</h3>
+				<div class="col-2 text-center p-2" style="background-color:`+ tier.color.toUpperCase() + `;">
+					<h3 class="tier-title">`+ tier.name + `</h3>
 				</div>
 				<div class="col-7 tier-content d-flex flex-wrap gap-2 p-2"></div>
 				<div class="col-3 actions text-center">
@@ -47,11 +48,24 @@ function renderTiers(){
 		});
 
 		tiers.appendChild(div);
+	});
 
+	document.querySelectorAll('.move-up').forEach((button, index) => {
+		button.addEventListener('click', () => moveTier(index, 'up'));
+	});
+
+	document.querySelectorAll('.move-down').forEach((button, index) => {
+		button.addEventListener('click', () => moveTier(index, 'down'));
+	});
+
+	document.querySelectorAll('.delete-tier').forEach((button, index) => {
+		button.addEventListener('click', () => deleteTier(index));
 	});
 }
 
-function moveTier(index, direction){
+
+function moveTier(index, direction) {
+	const tier = initTiers[index];
 	if (direction === 'up' && index > 0) {
 		[initTiers[index], initTiers[index - 1]] = [initTiers[index - 1], initTiers[index]];
 	} else if (direction === 'down' && index < initTiers.length - 1) {
@@ -60,12 +74,17 @@ function moveTier(index, direction){
 	renderTiers();
 }
 
-function editTitle(index, element){
+function deleteTier(index) {
+	initTiers.splice(index, 1);
+	renderTiers();
+}
+
+function editTitle(index, element) {
 	initTiers[index].name = element.value;
 	renderTiers();
 }
 
-function showTitle(element){
+function showTitle(element) {
 	const h3 = document.createElement('h3');
 	h3.classList.add('tier-title');
 	h3.innerHTML = element.value;
