@@ -23,7 +23,6 @@ function renderTiers() {
 
 		div.classList.add('tier');
 		div.classList.add('droppable');
-		div.droppable = true;
 		div.innerHTML = `
 			<div class="row align-items-center tier-row" data-index="4">
 				<div class="col-2 text-center p-2" style="background-color:`+ tier.color.toUpperCase() + `;">
@@ -100,7 +99,6 @@ function removeItem(id,nomTier){
 			tier.items = tier.items.filter(item => item.id != id);
 		}
 	});
-	renderTiers();
 }
 
 function addItem(id, nomTier){
@@ -109,5 +107,4 @@ function addItem(id, nomTier){
 			tier.items.push({ id: id, text: document.getElementById(id).innerHTML });
 		}
 	});
-	renderTiers();
 }

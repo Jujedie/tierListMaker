@@ -1,6 +1,6 @@
 let otherItems = [
 
-	{ id: 4, text: "Java" },
+	{ id: 7, text: "Java" },
 
 	{ id: 5, text: "Bash" },
 
@@ -18,7 +18,7 @@ function createItemElement(item) {
 	div.classList.add('draggable');
 	div.id = "Item "+item.id;
 	div.draggable = true;
-	div.dataset.id = item.id;
+	div.setAttribute('id', item.id);
 	
 	div.appendChild(span);
 
@@ -33,7 +33,7 @@ function renderItems() {
 	const div = document.createElement('div');
 
 	div.classList.add('tier');
-	div.droppable = true;
+	div.classList.add('droppable');
 	div.innerHTML = `
 			<div class="row align-items-center tier-row" data-index="4">
 				<div class="col-2 text-center p-2">
@@ -72,10 +72,8 @@ function addNewItem(){
 
 function removeItemAutre(id){
 	otherItems = otherItems.filter(item => item.id != id);
-	renderItems();
 }
 
-function addItemAutre(item){
-	otherItems.push(item);
-	renderItems();
+function addItemAutre(id){
+	otherItems.push({ id: id, text: document.getElementById(id).innerHTML });
 }

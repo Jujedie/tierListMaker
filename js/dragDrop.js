@@ -1,61 +1,58 @@
 function renderDrag() {
-	document.querySelectorAll('.draggable').forEach(item => {
-		if (item.dataset.hasEventListener) { return; }
-		item.dataset.hasEventListener = 'true';
-		item.addEventListener('dragstart', (event) => {
-			event.dataTransfer.setData('text/plain', item.id);
-		});
-	});
+    document.querySelectorAll('.draggable').forEach(item => {
+        if (item.dataset.hasEventListener) { return; }
+        item.dataset.hasEventListener = 'true';
+        item.addEventListener('dragstart', (event) => {
+            event.dataTransfer.setData('text/plain', item.id);
+        });
+    });
 
-	document.querySelectorAll('.droppable').forEach(div => {
-		if (!div.hasEventListener) {
-			div.addEventListener('dragover', (event) => {
-				event.preventDefault();
-				if (div.classList.contains('tier')) {
-					div.classList.add('drag-over');
-				}
-			});
+    document.querySelectorAll('.droppable').forEach(div => {
+        if (div.dataset.hasEventListener) { return; }
+        div.dataset.hasEventListener = 'true';
 
-			div.addEventListener('dragleave', (event) => {
-				if (div.classList.contains('tier')) {
-					div.classList.remove('drag-over');
-				}
-			});
+        div.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            if (div.classList.contains('tier')) {
+                div.classList.add('drag-over');
+            }
+        });
 
-			div.addEventListener('drop', (event) => {
-				event.preventDefault();
+        div.addEventListener('dragleave', (event) => {
+            if (div.classList.contains('tier')) {
+                div.classList.remove('drag-over');
+            }
+        });
 
-				const id = event.dataTransfer.getData('text/plain');
-				let item = document.getElementById(id);
+        div.addEventListener('drop', (event) => {
+            event.preventDefault();
 
-				document.querySelectorAll('.tier-content').forEach(tier => {
-					const tier_nom = tier.parentElement.getElementsByClassName('tier-title')[0].innerHTML;
-					if (tier_nom == "autres" && tier.contains(item)) {
-						console.log(tier);
-						removeItemAutre(item.getAttribute('id'));
-					}
-					else if (tier.contains(item)) {
-						console.log(tier);
-						removeItem(item.getAttribute('id'), tier_nom);
-					}
-				});
+            const id = event.dataTransfer.getData('text/plain');
+            const item = document.getElementById(id);
 
-				const divDrag = document.querySelectorAll('.drag-over')[0];
+            const divDrag = document.querySelectorAll('.drag-over')[0];
 
-				if (divDrag) {
-					const targetTier = divDrag.parentElement.getElementsByClassName('tier-title')[0].innerHTML;
-					if (targetTier == "autres") {
-						addItemAutre(item.getAttribute('id'));
-					} else {
-						addItem(item.getAttribute('id'), targetTier);
-					}
-				}
+            if (divDrag) {
+                const tier_nom = divDrag.getElementsByClassName('tier-title')[0].innerHTML;
+                if (tier_nom == "autres") {
+                    addItemAutre(item.getAttribute('id'));
+                } else {
+                    addItem(item.getAttribute('id'), tier_nom);
+                }
+            }
 
-				renderItems();
-				renderTiers();
-				
-				div.hasEventListener = true;
-			});
-		}
-	});
+            document.querySelectorAll('.tier-content').forEach(tier => {
+                const tier_nom = tier.parentElement.getElementsByClassName('tier-title')[0].innerHTML;
+                if (tier_nom == "autres" && tier.contains(item)) {
+                    removeItemAutre(item.getAttribute('id'));
+                }
+                else if (tier.contains(item)) {
+                    removeItem(item.getAttribute('id'), tier_nom);
+                }
+            });
+
+            renderItems();
+            renderTiers();
+        });
+    });
 }
