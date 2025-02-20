@@ -104,7 +104,7 @@ function removeItem(id,nomTier){
 function addItem(id, nomTier){
 	initTiers.forEach(tier => {
 		if (tier.name == nomTier) {
-			tier.items.push({ id: id, text: document.getElementById(id).innerHTML });
+			tier.items.push({ id: id, text: document.getElementById(id).getElementsByClassName('item-text')[0].innerHTML });
 		}
 	});
 }

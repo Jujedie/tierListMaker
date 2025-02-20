@@ -75,5 +75,5 @@ function removeItemAutre(id){
 }
 
 function addItemAutre(id){
-	otherItems.push({ id: id, text: document.getElementById(id).innerHTML });
+	otherItems.push({ id: id, text: document.getElementById(id).getElementsByClassName('item-text')[0].innerHTML });
 }

@@ -32,6 +32,11 @@ function renderDrag() {
 
             const divDrag = document.querySelectorAll('.drag-over')[0];
 
+            const tierContentDrag = divDrag.getElementsByClassName('tier-content')[0];
+            if (tierContentDrag.contains(item)) {
+                return;
+            }
+
             if (divDrag) {
                 const tier_nom = divDrag.getElementsByClassName('tier-title')[0].innerHTML;
                 if (tier_nom == "autres") {
