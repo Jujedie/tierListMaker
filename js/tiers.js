@@ -61,6 +61,35 @@ function renderTiers() {
 		button.addEventListener('click', () => deleteTier(index));
 	});
 
+	document.querySelectorAll('.tier-title').forEach((title, index) => {
+		title.addEventListener('click', () => {
+			const newName = prompt('Enter new tier name:', initTiers[index].name);
+			if (newName) {
+				initTiers[index].name = newName;
+			}
+
+			const colorInput = document.createElement('input');
+			colorInput.type = 'color';
+			colorInput.value = initTiers[index].color;
+			colorInput.addEventListener('input', (event) => {
+				initTiers[index].color = event.target.value;
+				renderTiers();
+			});
+
+			const colorLabel = document.createElement('label');
+			colorLabel.textContent = 'Choose new tier color: ';
+			colorLabel.appendChild(colorInput);
+
+			document.body.appendChild(colorLabel);
+
+			colorInput.click();
+
+			colorInput.addEventListener('change', () => {
+				document.body.removeChild(colorLabel);
+			});
+		});
+	});
+
 	renderDrag();
 }
 
@@ -104,7 +133,17 @@ function removeItem(id,nomTier){
 function addItem(id, nomTier){
 	initTiers.forEach(tier => {
 		if (tier.name == nomTier) {
-			tier.items.push({ id: id, text: document.getElementById(id).getElementsByClassName('item-text')[0].innerHTML });
+			let itemElement = document.getElementById(id).querySelector('.item-text, img');
+			let itemText = itemElement.tagName === 'IMG' ? itemElement.outerHTML : itemElement.innerHTML;
+			tier.items.push({ id: id, text: itemText });
 		}
 	});
+}
+
+function creerTier(){
+	let tierName = prompt("Nom du tier");
+	let id = initTiers.length + 1;
+
+	initTiers.push({ id: id, name: tierName, color: '#000000', items: [] });
+	renderTiers();
 }

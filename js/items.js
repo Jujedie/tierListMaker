@@ -9,18 +9,28 @@ let otherItems = [
 ];
 
 function createItemElement(item) {
-	const span = document.createElement('span');
-	span.classList.add('item-text');
-	span.innerHTML = item.text;
+	let element;
+	if (item.text.startsWith('<img')) {
+		element = document.createElement('div');
+		element.innerHTML = item.text;
+		element = element.firstChild;
+	} else {
+		element = document.createElement('span');
+		element.classList.add('item-text');
+		element.innerHTML = item.text;
+	}
 
 	const div = document.createElement('div');
+
 	div.classList.add('item');
 	div.classList.add('draggable');
+	
 	div.id = "Item "+item.id;
 	div.draggable = true;
+	
 	div.setAttribute('id', item.id);
 	
-	div.appendChild(span);
+	div.appendChild(element);
 
 	return div;
 }
@@ -57,17 +67,11 @@ function renderItems() {
 		});
 	});
 
+	console.log(otherItems);
+
 	items.appendChild(div);
 
 	renderDrag();
-}
-
-function addNewItem(){
-	let itemText = prompt("");
-	let id = otherItems.length + 1;
-
-	otherItems.push({ id: id, text: itemText });
-	renderItems();
 }
 
 function removeItemAutre(id){
@@ -75,5 +79,38 @@ function removeItemAutre(id){
 }
 
 function addItemAutre(id){
-	otherItems.push({ id: id, text: document.getElementById(id).getElementsByClassName('item-text')[0].innerHTML });
+	let itemElement = document.getElementById(id).querySelector('.item-text, img');
+	let itemText = itemElement.tagName === 'IMG' ? itemElement.outerHTML : itemElement.innerHTML;
+	otherItems.push({ id: id, text: itemText });
+}
+
+function getMaxId(){
+	let maxId = 0;
+	initTiers.forEach(tier => {
+		tier.items.forEach(item => {
+			if (item.id > maxId) {
+				maxId = item.id;
+			}
+		});
+	});
+	otherItems.forEach(item => {
+			if (item.id > maxId) {
+				maxId = item.id;
+			}
+		});
+		return maxId;
+	}
+
+function creerItem(){
+	let itemText = prompt("Nom de l'item :");
+	let id = getMaxId()+1;
+	let itemType = prompt("Type de l'item (text/image) :");
+
+	if (itemType === 'image') {
+		let imageUrl = prompt("URL de l'image :");
+		otherItems.push({ id: id, text: `<img src="${imageUrl}" alt="${itemText}">` });
+	} else {
+		otherItems.push({ id: id, text: itemText });
+	}
+	renderItems();
 }
