@@ -76,17 +76,7 @@ function renderTiers() {
 				renderTiers();
 			});
 
-			const colorLabel = document.createElement('label');
-			colorLabel.textContent = 'Choose new tier color: ';
-			colorLabel.appendChild(colorInput);
-
-			document.body.appendChild(colorLabel);
-
 			colorInput.click();
-
-			colorInput.addEventListener('change', () => {
-				document.body.removeChild(colorLabel);
-			});
 		});
 	});
 
