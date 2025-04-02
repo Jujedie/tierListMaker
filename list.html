@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Liste des Tier Lists</title>
+    <link href="css/styles.css" rel="stylesheet">
+    <link crossorigin="anonymous" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+    <script crossorigin="anonymous" src="https://kit.fontawesome.com/1038d5e71f.js"></script>
+</head>
+<body data-bs-theme="dark">
+<div class="container mt-4">
+    <h1 class="text-center">Mes Tier Lists</h1>
+    <div class="list-group mt-4" id="tierlist-container">
+        <!-- Les tier lists seront ajoutées ici dynamiquement -->
+    </div>
+    <button class="btn btn-light mt-4 w-100" data-bs-target="#newModal" data-bs-toggle="modal" type="button">
+        Nouvelle Tier List
+    </button>
+    <script crossorigin="anonymous"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</div>
+
+<!-- Modal -->
+<div aria-hidden="true" aria-labelledby="exampleModalLabel" class="modal fade" id="newModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form id="newTierForm">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Nouvelle Tier List</h1>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label" for="tierName">Nom de la Tier List</label>
+                        <input class="form-control" id="tierName" name="name" required type="text">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" data-bs-dismiss="modal" type="button">Close</button>
+                    <button class="btn btn-primary" type="submit">Créer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="list.js">
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', async function () {
+        const token = sessionStorage.getItem('token');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        // Récupération des tier lists
+        try {
+            const response = await fetch('http://localhost:5000/api/tierlists', {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                const tierLists = await response.json();
+                const container = document.getElementById('tierlist-container');
+                tierLists.forEach(tierList => {
+                    const listItem = document.createElement('a');
+                    listItem.href = `tiers.html?id=${tierList.id}`;
+                    listItem.classList.add('list-group-item', 'list-group-item-action');
+                    listItem.textContent = tierList.name;
+                    container.appendChild(listItem);
+                });
+            } else {
+                console.error('Erreur lors de la récupération des tier lists.');
+            }
+        } catch (error) {
+            console.error('Erreur réseau', error);
+        }
+
+        // Gestion de la création d'une nouvelle tier list
+        document.getElementById('newTierForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+            const tierName = document.getElementById('tierName').value;
+
+            try {
+                const response = await fetch('http://localhost:5000/api/tierlist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ name: tierName })
+                });
+
+                if (response.ok) {
+                    const newTierList = await response.json();
+                    const container = document.getElementById('tierlist-container');
+                    const listItem = document.createElement('a');
+                    listItem.href = `tiers.html?id=${newTierList.id}`;
+                    listItem.classList.add('list-group-item', 'list-group-item-action');
+                    listItem.textContent = newTierList.name;
+                    container.appendChild(listItem);
+                    document.getElementById('newModal').querySelector('.btn-close').click();
+                } else {
+                    console.error('Erreur lors de la création de la tier list.');
+                }
+            } catch (error) {
+                console.error('Erreur réseau', error);
+            }
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,149 +1,162 @@
-const initTiers = [
+const initTiers = [];
 
-	{ id: 1, name: 'Incontournable', color: '#FF8C42', items: [{ id: 1, text: "PHP" }, { id: 4, text: "SQL" }] },
+async function initializeTiers() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tierlistId = urlParams.get('id');
 
-	{ id: 2, name: 'Moyenne', color: '#EFBF3E', items: [{ id: 2, text: "Javascript" }] },
-
-	{ id: 3, name: 'Passable', color: '#C2C236', items: [] },
-
-	{ id: 4, name: 'Médiocre', color: '#6FBF73', items: [] },
-
-	{ id: 5, name: 'Catastrophique', color: '#4E9A51', items: [{ id: 3, text: "CSS" }] }
-
-];
+    try {
+        const response = await fetch(`http://localhost:5000/api/tierlist/${tierlistId}`);
+        if (response.ok) {
+            const tierlist = await response.json();
+            initTiers.splice(0, initTiers.length, ...tierlist.tiers);
+            renderTiers();
+        } else {
+            console.error('Erreur lors de la récupération des tiers.');
+        }
+    } catch (error) {
+        console.error('Erreur réseau', error);
+    }
+}
 
 function renderTiers() {
+    document.getElementById('tiers-container').innerHTML = '';
 
-	document.getElementById('tiers-container').innerHTML = '';
+    const tiers = document.getElementById('tiers-container');
 
-	const tiers = document.getElementById('tiers-container');
+    initTiers.forEach(tier => {
+        const div = document.createElement('div');
 
-	initTiers.forEach(tier => {
-		const div = document.createElement('div');
+        div.classList.add('tier');
+        div.classList.add('droppable');
+        div.innerHTML = `
+            <div class="row align-items-center tier-row" data-index="4">
+                <div class="col-2 text-center p-2" style="background-color:`+ tier.color.toUpperCase() + `;">
+                    <h3 class="tier-title">`+ tier.name + `</h3>
+                </div>
+                <div class="col-7 tier-content d-flex flex-wrap gap-2 p-2"></div>
+                <div class="col-3 actions text-center">
+                    <button class="btn move-up"><i class="fa fa-angle-up" aria-hidden="true"></i></button>
+                    <button class="btn move-down"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
+                    <button class="btn delete-tier"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                </div>
+            </div>`;
 
-		div.classList.add('tier');
-		div.classList.add('droppable');
-		div.innerHTML = `
-			<div class="row align-items-center tier-row" data-index="4">
-				<div class="col-2 text-center p-2" style="background-color:`+ tier.color.toUpperCase() + `;">
-					<h3 class="tier-title">`+ tier.name + `</h3>
-				</div>
-				<div class="col-7 tier-content d-flex flex-wrap gap-2 p-2"></div>
-				<div class="col-3 actions text-center">
-					<button class="btn move-up"><i class="fa fa-angle-up" aria-hidden="true"></i></button>
-					<button class="btn move-down"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
-					<button class="btn delete-tier"><i class="fa fa-trash" aria-hidden="true"></i></button>
-				</div>
-			</div>`;
+        let ensItem = [];
 
-		let ensItem = [];
+        tier.items.forEach(item => {
+            ensItem.push(createItemElement(item));
+        });
 
-		tier.items.forEach(item => {
-			ensItem.push(createItemElement(item));
-		});
+        ensItem.forEach(item => {
+            div.getElementsByClassName("tier-content")[0].appendChild(item);
+        });
 
-		ensItem.forEach(item => {
-			div.getElementsByClassName("tier-content")[0].appendChild(item);
-		});
+        tiers.appendChild(div);
+    });
 
-		tiers.appendChild(div);
-	});
+    document.querySelectorAll('.move-up').forEach((button, index) => {
+        button.addEventListener('click', () => moveTier(index, 'up'));
+    });
 
-	document.querySelectorAll('.move-up').forEach((button, index) => {
-		button.addEventListener('click', () => moveTier(index, 'up'));
-	});
+    document.querySelectorAll('.move-down').forEach((button, index) => {
+        button.addEventListener('click', () => moveTier(index, 'down'));
+    });
 
-	document.querySelectorAll('.move-down').forEach((button, index) => {
-		button.addEventListener('click', () => moveTier(index, 'down'));
-	});
+    document.querySelectorAll('.delete-tier').forEach((button, index) => {
+        button.addEventListener('click', () => deleteTier(index));
+    });
 
-	document.querySelectorAll('.delete-tier').forEach((button, index) => {
-		button.addEventListener('click', () => deleteTier(index));
-	});
+    document.querySelectorAll('.tier-title').forEach((title, index) => {
+        title.addEventListener('click', () => showTitle(title, index));
+    });
 
-	document.querySelectorAll('.tier-title').forEach((title, index) => {
-		title.addEventListener('click', () => {
-			const newName = prompt('Enter new tier name:', initTiers[index].name);
-			if (newName) {
-				initTiers[index].name = newName;
-			}
-
-			const colorInput = document.createElement('input');
-			colorInput.type = 'color';
-			colorInput.value = initTiers[index].color;
-			colorInput.addEventListener('input', (event) => {
-				initTiers[index].color = event.target.value;
-				renderTiers();
-			});
-
-			const colorLabel = document.createElement('label');
-			colorLabel.textContent = 'Choose new tier color: ';
-			colorLabel.appendChild(colorInput);
-
-			document.body.appendChild(colorLabel);
-
-			colorInput.click();
-
-			colorInput.addEventListener('change', () => {
-				document.body.removeChild(colorLabel);
-			});
-		});
-	});
-
-	renderDrag();
+    renderDrag();
 }
 
+async function moveTier(index, direction) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tierlistId = urlParams.get('id');
 
-function moveTier(index, direction) {
-	const tier = initTiers[index];
-	if (direction === 'up' && index > 0) {
-		[initTiers[index], initTiers[index - 1]] = [initTiers[index - 1], initTiers[index]];
-	} else if (direction === 'down' && index < initTiers.length - 1) {
-		[initTiers[index], initTiers[index + 1]] = [initTiers[index + 1], initTiers[index]];
-	}
-	renderTiers();
+    const tier = initTiers[index];
+    if (direction === 'up' && index > 0) {
+        [initTiers[index], initTiers[index - 1]] = [initTiers[index - 1], initTiers[index]];
+    } else if (direction === 'down' && index < initTiers.length - 1) {
+        [initTiers[index], initTiers[index + 1]] = [initTiers[index + 1], initTiers[index]];
+    }
+
+    try {
+        await fetch(`http://localhost:5000/api/tierlist/${tierlistId}/reorder-tiers`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(initTiers)
+        });
+        renderTiers();
+    } catch (error) {
+        console.error('Erreur réseau', error);
+    }
 }
 
-function deleteTier(index) {
-	initTiers.splice(index, 1);
-	renderTiers();
+async function deleteTier(index) {
+    const tierToDelete = initTiers[index];
+
+    try {
+        const response = await fetch(`http://localhost:5000/api/tier/${tierToDelete.id}`, {
+            method: 'DELETE'
+        });
+
+        if (response.ok) {
+            initTiers.splice(index, 1);
+            renderTiers();
+        } else {
+            alert("Erreur lors de la suppression du tier.");
+        }
+    } catch (error) {
+        console.error('Erreur réseau', error);
+    }
 }
 
-function editTitle(index, element) {
-	initTiers[index].name = element.value;
-	renderTiers();
+async function showTitle(element, index) {
+    const newName = prompt('Enter new tier name:', initTiers[index].name);
+    if (newName) {
+        initTiers[index].name = newName;
+
+        try {
+            await fetch(`http://localhost:5000/api/tier/${initTiers[index].id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: newName })
+            });
+            renderTiers();
+        } catch (error) {
+            console.error('Erreur réseau', error);
+        }
+    }
 }
 
-function showTitle(element) {
-	const h3 = document.createElement('h3');
-	h3.classList.add('tier-title');
-	h3.innerHTML = element.value;
-
-	element.parentElement.replaceChild(h3, element);
+function removeItem(id, nomTier) {
+    initTiers.forEach(tier => {
+        if (tier.name == nomTier) {
+            tier.items = tier.items.filter(item => item.id != id);
+        }
+    });
 }
 
-function removeItem(id,nomTier){
-	initTiers.forEach(tier => {
-		if (tier.name == nomTier) {
-			tier.items = tier.items.filter(item => item.id != id);
-		}
-	});
+function addItem(id, nomTier) {
+    initTiers.forEach(tier => {
+        if (tier.name == nomTier) {
+            let itemElement = document.getElementById(id).querySelector('.item-text, img');
+            let itemText = itemElement.tagName === 'IMG' ? itemElement.outerHTML : itemElement.innerHTML;
+            tier.items.push({ id: id, text: itemText });
+        }
+    });
 }
 
-function addItem(id, nomTier){
-	initTiers.forEach(tier => {
-		if (tier.name == nomTier) {
-			let itemElement = document.getElementById(id).querySelector('.item-text, img');
-			let itemText = itemElement.tagName === 'IMG' ? itemElement.outerHTML : itemElement.innerHTML;
-			tier.items.push({ id: id, text: itemText });
-		}
-	});
+function creerTier() {
+    let tierName = prompt("Nom du tier");
+    let id = initTiers.length + 1;
+
+    initTiers.push({ id: id, name: tierName, color: '#000000', items: [] });
+    renderTiers();
 }
 
-function creerTier(){
-	let tierName = prompt("Nom du tier");
-	let id = initTiers.length + 1;
-
-	initTiers.push({ id: id, name: tierName, color: '#000000', items: [] });
-	renderTiers();
-}
+document.addEventListener('DOMContentLoaded', initializeTiers);

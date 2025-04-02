@@ -114,3 +114,43 @@ function creerItem(){
 	}
 	renderItems();
 }
+
+async function addItem(id, nomTier) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tierlistId = urlParams.get('id');
+
+    initTiers.forEach(tier => {
+        if (tier.name === nomTier) {
+            let itemElement = document.getElementById(id).querySelector('.item-text, img');
+            let itemText = itemElement.tagName === 'IMG' ? itemElement.outerHTML : itemElement.innerHTML;
+            const newItem = { id: id, text: itemText };
+
+            tier.items.push(newItem);
+
+            try {
+                await fetch(`http://localhost:5000/api/item`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ tierId: tier.id, item: newItem })
+                });
+            } catch (error) {
+                console.error('Erreur réseau', error);
+            }
+        }
+    });
+}
+
+async function moveItemToTier(itemId, sourceTierId, targetTierId) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tierlistId = urlParams.get('id');
+
+    try {
+        await fetch(`http://localhost:5000/api/tierlist/${tierlistId}/move-item-to-tier`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ itemId, sourceTierId, targetTierId })
+        });
+    } catch (error) {
+        console.error('Erreur réseau', error);
+    }
+}
