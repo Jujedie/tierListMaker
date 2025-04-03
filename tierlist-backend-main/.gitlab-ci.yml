@@ -1,0 +1,27 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - docker info  # Vérifie que Docker fonctionne correctement
+
+# Construire l'image Docker
+build:
+  stage: build
+  image: docker:latest  # Utiliser l'image Docker officielle
+  services:
+    - docker:19.03.12-dind  # Docker-in-Docker pour pouvoir builder une image
+  script:
+    - docker-compose -f docker-compose.yml build  # Construire l'image avec Docker Compose
+    - docker images  # Vérifie que l'image est bien construite
+
+# Utiliser l'image construite
+deploy:
+  stage: deploy
+  image: my-local-image  # Utilise l'image construite précédemment
+  script:
+    - docker run my-local-image  # Lance un conteneur basé sur l'image locale
+    - echo "Deployment completed!"

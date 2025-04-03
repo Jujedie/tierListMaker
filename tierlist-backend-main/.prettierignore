@@ -1,0 +1,17 @@
+node_modules/
+
+.vscode/
+.idea/
+
+dist/
+
+coverage/
+
+.env*
+.gitignore
+.prettierrc
+.prettierignore
+*.yml
+Dockerfile
+
+README.md

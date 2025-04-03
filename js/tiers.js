@@ -5,9 +5,18 @@ async function initializeTiers() {
     const tierlistId = urlParams.get('id');
 
     try {
-        const response = await fetch(`http://localhost:5000/api/tierlist/${tierlistId}`);
+        const response = await fetch(`http://localhost:5000/api/tierlist/${tierlistId}`
+		,{
+			method: 'GET',
+			headers: {
+				'Authorization': `Bearer ${sessionStorage.getItem('token')}`,
+				'Content-Type' : 'application/json',
+			}
+		});	
+
+		const tierlist = await response.json();
+
         if (response.ok) {
-            const tierlist = await response.json();
             initTiers.splice(0, initTiers.length, ...tierlist.tiers);
             renderTiers();
         } else {
